@@ -5,12 +5,12 @@ Cambios aplicados:
 1. Convertir arreglos de users y passwords a un hash que es mucho mas eficiente para acceder a los datos.
 2. Se cambia la capacidad de leer las variables users y passwords directamente y se agregan metodos que los devuelven como la antigua representacion para no variar los resultados.
 3. Se agrega reutilizacion de funciones para evitar redundancia de codigo fuente
+4. Se cambia sessions de arreglo a hash para optimizar y se agrega metodo sessions para ver representacion anterior en forma de arreglo
 =end
-  attr_reader :sessions
 
   # Receives a hash with usernames as keys and passwords as values
   def initialize(hash)
-    @sessions = []
+    @sessions = {}
     @users = hash
   end
   #metodo para retornar misma representacion anterior de users
@@ -21,12 +21,16 @@ Cambios aplicados:
   def passwords
     @users.each_value.to_a
   end
+  #metodo para retornar misma representacion anterior de sessions 
+  def sessions
+    @sessions.each_key.to_a
+  end
 
   def logout(user)
-    sessions.each_with_index do |session, i|
-      sessions[i] = nil if session == user
+    if @sessions.key?(user)
+        @sessions.delete(user)
+        sessions
     end
-    sessions.compact!
   end
 
   # Checks if user exists
@@ -64,7 +68,8 @@ Cambios aplicados:
   def login(user, password)
     # reutilizacion de funcion check_password
     if check_password(user, password)
-      sessions << user
+      @sessions[user] = true
+      sessions
     end
   end
 
