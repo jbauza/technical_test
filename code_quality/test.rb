@@ -1,16 +1,24 @@
 # This class is used for logins
 class Login
-  attr_reader :sessions, :users, :passwords
+=begin 
+Cambios aplicados:
+1. Convertir arreglos de users y passwords a un hash que es mucho mas eficiente para acceder a los datos.
+2. Se cambia la capacidad de leer las variables users y passwords directamente y se agregan metodos que los devuelven como la antigua representacion para no variar los resultados.
+=end
+  attr_reader :sessions
 
   # Receives a hash with usernames as keys and passwords as values
   def initialize(hash)
     @sessions = []
-    @users = []
-    @passwords = []
-    hash.map do |k,v|
-      @users = @users + [k]
-      @passwords = @passwords + [v]
-    end
+    @users = hash
+  end
+  #metodo para retornar misma representacion anterior de users
+  def users
+    @users.each_key.to_a
+  end
+  #metodo para retornar misma representacion anterior de passwords
+  def passwords
+    @users.each_value.to_a
   end
 
   def logout(user)
@@ -22,36 +30,21 @@ class Login
 
   # Checks if user exists
   def user_exists(user)
-    # Temp variable for storing the user if found
-    temp = ''
-    for i in users
-      if i == user
-        temp = user
-      end
-    end
-    exists = temp != '' && temp == user
-    exists
+    @users.key?(user)
   end
 
   # Register user
   def register_user(user, password)
-    last_index = users.size
-    users[last_index] = user
-    passwords[last_index] = password
+    @users[user] = password
   end
 
   def remove_user(user)
-    index = idx(user, users)
-    users[index] = nil
-    passwords[index] = nil
-    users.compact!
-    passwords.compact!
+    @users.delete(user)
+    passwords
   end
 
   def check_password(user, password)
-    index = idx(user, users)
-    password_correct = passwords[index] == password
-    return password_correct
+    @users[user] == password
   end
 
   def update_password(user, old_password, new_password)
@@ -63,9 +56,8 @@ class Login
       end
     end
     if user_1 == user
-      index = idx(user, users)
-      if passwords[index] == old_password
-        passwords[index] = new_password
+      if @users[user] == old_password
+        @users[user] = new_password
         return true
       end
     end
@@ -73,13 +65,14 @@ class Login
   end
 
   def login(user, password)
-    index = idx(user, users)
-    if passwords[index] == password
+    if @users[user] == password
       sessions << user
     end
   end
 
   # Gets index of an element in an array
+  # Se comenta pues ya no es necesaria, en proximos comits se quita
+=begin
   def idx(element, array)
     cont=0
     for i in array
@@ -88,6 +81,7 @@ class Login
     end
     return cont
   end
+=end
 end
 
 
