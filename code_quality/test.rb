@@ -4,6 +4,7 @@ class Login
 Cambios aplicados:
 1. Convertir arreglos de users y passwords a un hash que es mucho mas eficiente para acceder a los datos.
 2. Se cambia la capacidad de leer las variables users y passwords directamente y se agregan metodos que los devuelven como la antigua representacion para no variar los resultados.
+3. Se agrega reutilizacion de funciones para evitar redundancia de codigo fuente
 =end
   attr_reader :sessions
 
@@ -49,15 +50,11 @@ Cambios aplicados:
 
   def update_password(user, old_password, new_password)
     # First we check if the user exists
-    user_1 = ''
-    for i in users
-      if i == user
-        user_1 = user
-      end
-    end
-    if user_1 == user
-      if @users[user] == old_password
-        @users[user] = new_password
+    # Reutilizacion de funciones user_exists, check_password, register_users
+
+    if user_exists(user)
+      if check_password(user, old_password)
+        register_user(user, new_password)
         return true
       end
     end
@@ -65,23 +62,12 @@ Cambios aplicados:
   end
 
   def login(user, password)
-    if @users[user] == password
+    # reutilizacion de funcion check_password
+    if check_password(user, password)
       sessions << user
     end
   end
 
-  # Gets index of an element in an array
-  # Se comenta pues ya no es necesaria, en proximos comits se quita
-=begin
-  def idx(element, array)
-    cont=0
-    for i in array
-      return cont if i == element
-      cont += 1
-    end
-    return cont
-  end
-=end
 end
 
 
