@@ -2,7 +2,7 @@ import sys
 import json
 import time
 import requests
-from classes import Card
+from classes import PokerGame, Card
 
 base_url = 'http://dealer.internal.comparaonline.com:8080/'
 
