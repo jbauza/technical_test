@@ -87,7 +87,7 @@ class Hand(object):
     def getSuit(self, suit):
         has_suit = []
         for c in self.cards:
-            if c.number == suit:
+            if c.suit == suit:
                 has_suit.append(c)
 
         return has_suit  
