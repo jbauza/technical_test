@@ -10,43 +10,70 @@ class PokerGame(object):
     def __init__(self):
         self.shuffleDeck()
 
+    def responseOk(self, response):
+        #HTTP code 200
+        if response.status_code == requests.codes.ok:
+            return True
+        else:
+            return False
+
+    def isLive(self):
+        return True if self.token is not None else False
+     
+    def endGame(self):
+        self.token = None
+        self.deck_size = 0
+
     def shuffleDeck(self):
         response = requests.post(self.TOKEN_URL)
         
-        if response.status_code == 200:
+        if self.responseOk(response):
             self.deck_size = 52
             self.token = response.text
+
         elif response.status_code == 500:
-            print "El dealer no esta disponible"
+            print "El dealer esta barajando"
+            #retry if HTTP code 500
+            self.shuffleDeck()
         else:
             print "Ocurrio un error HTTP con estado", response.status_code
+            self.endGame()
 
     #Por defecto se pide una mano de 5 cartas
     def getHand(self, number=5):
 
-        if self.token is None:
+        if not self.isLive():
             print "No hay dealer disponible"
             return None
-
 
         hand = Hand()
         cards_url = self.BASE_URL + '/'.join(['deck', self.token, 'deal', str(number)]) 
         get_hand = requests.get(cards_url)
 
-        if get_hand.status_code == 200:
+        if self.responseOk(get_hand):
             self.deck_size -= number
             json_hand = json.loads(get_hand.text)
             for jcard in json_hand:
                hand.append(Card(jcard["number"], jcard["suit"])) 
 
+        elif get_hand.status_code == 500:
+            #Si falla pide nuevamente una mano
+            print "El dealer esta preparandose para repartir"
+            return self.getHand()
+            
         elif get_hand.status_code == 405:
             print "No quedan suficientes cartas en la baraja, solo quedan ", self.deck_size
+            print "Se debe volver a revolver!"
 
         elif get_hand.status_code == 404:
-            print "", 405
+            print "El dealer ha dejado el juego."
+            self.endGame()
+            return False
 
         else:
             print "Error HTTP", get_hand.status_code
+            self.endGame()
+            return False
 
         return hand
 
@@ -92,6 +119,15 @@ class Hand(object):
 
         return has_suit  
 
-    
+    def getMapNumber(self):
+        map_number = {}
+        for c in self.cards:
+            if c.number in map_number:
+                map_number[c.number] += 1
+            else:
+                map_number[c.number] = 1 
+
+        return map_number
+
     def __repr__(self):
         return '['+','.join([c.__str__() for c in self.cards])+']'

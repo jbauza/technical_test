@@ -1,26 +1,50 @@
+import time
 from classes import PokerGame
 from utils import highCard, hasOnePair, hasTwoPairs, hasThreeOfAKind
 
 print "Comencemos el juego!"
-#print """Instrucciones:
-#Presiona 1 para para pedir una mano
-#Presiona 2 para revolver la baraja
-#Presiona 3 para terminar
-#"""
+print "--------------------"
 
 poker = PokerGame()
 
+while poker.isLive():
+    print '\n', "cartas restantes en baraja: ", poker.deck_size 
+    opcion = raw_input("Que desea hacer?(<jugar>, <mezclar> o <salir>): ")
 
-hand1 = poker.getHand()
-print 'p1', hand1
-print hasTwoPairs(hand1)
+    if opcion == 'salir':
+        time.sleep(1)
+        print "ok, adios!"
+        poker.endGame()
+        break
 
-hand2 = poker.getHand()
-print 'p2', hand2
-print hasTwoPairs(hand2)
+    elif opcion == 'mezclar':
+        poker.shuffleDeck()
+        continue
 
-print poker.deck_size
+    elif opcion == "jugar":
+        
+        print '\n',"jugador 1 pide cartas:"
+        hand1 = poker.getHand()
+        if hand1.cards:
+            time.sleep(1)
+            print 'cartas:', hand1
+            print hand1.getMapNumber().values()
+        else:
+            continue
+        
+        time.sleep(2)
 
-poker.shuffleDeck()
-print poker.token
-print poker.deck_size
+        print '\n',"jugador 2 pide cartas:"
+        hand2 = poker.getHand()
+        if hand2.cards:
+            time.sleep(1)
+            print 'cartas:', hand2
+            print hand2.getMapNumber().values()
+        else:
+            print "No quedan suficientes cartas, se debe volver a revolver la baraja."
+            continue
+
+        print "--------------------"
+
+    else:
+        continue
