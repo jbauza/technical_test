@@ -30,41 +30,43 @@ def highCard(hand):
     return max_card
 
 def hasOnePair(hand):
-    val_cards = [c.number for c in hand.cards]
-    cards = list(set(val_cards))
-    if len(cards) == 4:
-        seen = []
-        pair_card_number = 0 
-        for c in val_cards:
-            if c in seen:
-                pair_card_number = c
-                break
-            else:
-                seen.append(c) 
-        pair = hand.getNumber(pair_card_number)
- 
-        return pair
+    if hand.hasAnyPair():
+        val_cards = [c.number for c in hand.cards]
+        cards = list(set(val_cards))
+        if len(cards) == 4:
+            seen = []
+            pair_card_number = 0 
+            for c in val_cards:
+                if c in seen:
+                    pair_card_number = c
+                    break
+                else:
+                    seen.append(c) 
+            pair = hand.getNumber(pair_card_number)
+     
+            return pair
 
     return False
 
 def hasTwoPairs(hand):
-    val_cards = [c.number for c in hand.cards]
-    cards = list(set(val_cards))
-    if len(cards) == 3:
-        seen = {}
-        three_card_number = 0 
-        for c in val_cards:
-            if c in seen:
-                seen[c] += 1
-            else:
-                seen[c] = 1
-        if 2 in seen.values(): 
-            pairs = []
-            for c in cards:
-                if seen[c] == 2:
-                    pair = hand.getNumber(c)
-                    pairs.append(pair)
-            return pairs
+    if hand.hasAnyPair():
+        val_cards = [c.number for c in hand.cards]
+        cards = list(set(val_cards))
+        if len(cards) == 3:
+            seen = {}
+            three_card_number = 0 
+            for c in val_cards:
+                if c in seen:
+                    seen[c] += 1
+                else:
+                    seen[c] = 1
+            if 2 in seen.values(): 
+                pairs = []
+                for c in cards:
+                    if seen[c] == 2:
+                        pair = hand.getNumber(c)
+                        pairs.append(pair)
+                return pairs
         
     return False
 
@@ -85,35 +87,31 @@ def hasThreeOfAKind(hand):
         
     return False
 
-def isFourOfAKind(hand):
-    return False
-
-def hasFlush(hand):
-    suit = hand.cards[0].suit
-    cards_with_suit = hand.getSuit(suit)
-    if len(cards_with_suit) == len(hand.cards):
-        return hand.cards
-
-    return False
-
-def hasRoyalFlush(hand):
-    if hasFlush(hand):
-        royal_numbers = ['10','J','Q','K','A']
-        cards_number = [c.number for c in hand.cards] 
-        for rn in royal_numbers:
-            if rn not in cards_numbers:
+def hasStraight(hand):
+    cards_number = [c.number for c in hand.cards]
+    diff_cards = list(set(cards_number))
+    if len(diff_cards) == 5:
+        cards_values = [DECK[n] for n in cards_number]
+        #caso de dar vuelta la baraja
+        if 12 in cards_values and 1 in cards_values:
+            if 13 not in cards_values:
                 return False
+            else:
+                union_cards = [12,13,1]
+                other_cards = list(set(cards_values)-set(union_cards))
+                
+                if 11 not in other_cards:
+                    if 2 in other_cards and 3 in other_cards:
+                        return hand.cards
+                elif 2 not in other_cards:
+                    if 11 in other_cards and 10 in other_cards:
+                        return hand.cards
+                elif 11 in other_cards and 2 in other_cards:
+                    return hand.cards
+                else:
+                    return False
 
-        return hand.cards
-       
-    return False
-
-def hasStraightFlush(hand):
-    if hasFlush(hand):
-        cards_number = [c.number for c in hand.cards]
-        diff_cards = list(set(cards_number))
-        if len(diff_cards) == 5:
-            cards_values = [DECK[n] for n in cards_number]
+        else:
             cards_values.sort()
             before = None
             for v in cards_values:
@@ -127,9 +125,49 @@ def hasStraightFlush(hand):
                     if v == before+1:
                         before = v
                     else:
-                        return false
+                        return False
 
-            return hand.cards
-            
+        return hand.cards
+
+    return False
+
+def hasFlush(hand):
+    suit = hand.cards[0].suit
+    cards_with_suit = hand.getSuit(suit)
+    if len(cards_with_suit) == len(hand.cards):
+        return hand.cards
+
+    return False
+
+def hasFullHouse(hand):
+    if hand.hasAnyThreeOfKind() and hand.hasAnyPair():
+        return hand.cards
+    else:
+        return False
+
+def hasFourOfAKind(hand):
+    cards_map = hand.getMapNumber()
+    if 4 in cards_map.values():
+        #falta mostrar los 4 repetidos
+        return hand.cards
+        
+    return False
+
+def hasStraightFlush(hand):
+    if hasFlush(hand) and hasStraight(hand):
+        return hand.cards
+    else: 
+        return False
+
+def hasRoyalFlush(hand):
+    if hasFlush(hand):
+        royal_numbers = ['10','J','Q','K','A']
+        cards_number = [c.number for c in hand.cards] 
+        for rn in royal_numbers:
+            if rn not in cards_numbers:
+                return False
+
+        return hand.cards
+       
     return False
 

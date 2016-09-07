@@ -129,5 +129,21 @@ class Hand(object):
 
         return map_number
 
+    def hasAnyPair(self):
+        cards_map = self.getMapNumber()
+        if 2 in cards_map.values():
+            return True
+        else:
+            return False
+
+    def hasAnyThreeOfKind(self):
+        cards_map = self.getMapNumber()
+        if 3 in cards_map.values():
+            return True
+        else:
+            return False
+    
+
+
     def __repr__(self):
         return '['+','.join([c.__str__() for c in self.cards])+']'
