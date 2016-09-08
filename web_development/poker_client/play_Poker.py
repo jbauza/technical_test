@@ -1,6 +1,5 @@
 import time
 from classes import PokerGame
-from utils import highCard, hasOnePair, hasTwoPairs, hasThreeOfAKind
 
 print "Comencemos el juego!"
 print "--------------------"
@@ -12,8 +11,7 @@ while poker.isLive():
     opcion = raw_input("Que desea hacer?(<jugar>, <mezclar> o <salir>): ")
 
     if opcion == 'salir':
-        time.sleep(1)
-        print "ok, adios!"
+        print '\n',"ok, adios!"
         poker.endGame()
         break
 
@@ -23,27 +21,65 @@ while poker.isLive():
 
     elif opcion == "jugar":
         
+        print "---------"
         print '\n',"jugador 1 pide cartas:"
         hand1 = poker.getHand()
         if hand1.cards:
+            print 'cartas: ', hand1
             time.sleep(1)
-            print 'cartas:', hand1
-            print hand1.getMapNumber().values()
+            game1 = hand1.getBestGame()
+            #nombre y cartas de la mano del resultado
+            print "---------"
+            print 'juego: ', game1[1], game1[2]
         else:
             continue
         
+        print "---------"
         time.sleep(2)
 
         print '\n',"jugador 2 pide cartas:"
         hand2 = poker.getHand()
         if hand2.cards:
-            time.sleep(1)
             print 'cartas:', hand2
-            print hand2.getMapNumber().values()
+            time.sleep(1)
+            game2 = hand2.getBestGame()
+            #nombre y cartas de la mano del resultado
+            print "---------"
+            print 'juego: ', game2[1], game2[2]
         else:
-            print "No quedan suficientes cartas, se debe volver a revolver la baraja."
             continue
 
+        print "---------"
+        time.sleep(1)
+        print '\n',"El ganador es:",'\n'
+        time.sleep(1)
+
+        winner = poker.chooseWinner(game1, game2)
+        if winner:
+            if winner == game1:
+                print "jugador 1!!!!!"
+            else:
+                print "jugador 2!!!!!"
+            print "con: ", winner[1], winner[2]
+        else:
+            print "Empate de: ", game1[1], "!!!!"
+            time.sleep(1)
+            print "Se decidira por carta mas alta"
+            winner = poker.tieBreaker(hand1.cards, hand2.cards)
+            time.sleep(1)
+            print '\n',"El ganador es:"
+            time.sleep(1)
+            if winner:
+                if winner[0] == 1:
+                    print "jugador 1!!!!!"
+                else:
+                    print "jugador 2!!!!!"
+                print "con la carta mas alta: ", winner[1]
+
+            else:
+                print "Empate!, ambos jugadores tienen la misma mano. Increible!"
+
+        print "--------------------"
         print "--------------------"
 
     else:

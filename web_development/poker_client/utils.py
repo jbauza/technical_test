@@ -71,20 +71,12 @@ def hasTwoPairs(hand):
     return False
 
 def hasThreeOfAKind(hand):
-    val_cards = [c.number for c in hand.cards]
-    cards = list(set(val_cards))
-    if len(cards) == 3:
-        seen = {}
-        three_card_number = 0 
-        for c in val_cards:
-            if c in seen:
-                seen[c] += 1
-            else:
-                seen[c] = 1
-        if 3 in seen.values(): 
-            three = hand.getNumber(seen.keys()[seen.values().index(3)])
-            return three
-        
+    if hand.hasAnyThreeOfKind():
+        cards_map = hand.getMapNumber()
+        i_number = cards_map.values().index(3)
+        number = cards_map.keys()[i_number]
+        return hand.getNumber(number)
+
     return False
 
 def hasStraight(hand):
@@ -148,8 +140,9 @@ def hasFullHouse(hand):
 def hasFourOfAKind(hand):
     cards_map = hand.getMapNumber()
     if 4 in cards_map.values():
-        #falta mostrar los 4 repetidos
-        return hand.cards
+        i_number = cards_map.values().index(4)
+        number = cards_map.keys()[i_number]
+        return hand.getNumber(number)
         
     return False
 
